@@ -5,11 +5,18 @@
 #include <string.h>
 #include <unistd.h> // for read, write
 #include <arpa/inet.h> // for sockets
+#include <time.h> // time() used to provide a seed for srand() to seed rand()
 
 #define MAXLINE 4096
 #define BOARD_SIZE 5
 #define LISTENQ 1024
 
+struct guesses
+{
+	int row;
+	int col;
+	int hit;
+};
 typedef struct {
     char grid[BOARD_SIZE][BOARD_SIZE];
 } Board;
@@ -20,8 +27,9 @@ int main(int argc,char **argv) {
     socklen_t clilen;
     struct sockaddr_in cliaddr,servaddr;
     typedef struct sockaddr SA;
-    Board board;
-	
+    Board gameboard;
+	srand(time(0)); // seed random number generation with number of seconds since January 1, 1970
+
     listenfd = socket(AF_INET,SOCK_STREAM,0);
 
     bzero(&servaddr,sizeof(servaddr));
@@ -32,6 +40,25 @@ int main(int argc,char **argv) {
 
     listen(listenfd,LISTENQ);
 	printf("Server is ready to talk...\n");
+	// Initialize the gameboard to 0s
+	for(int i = 0; i < 5; i++)
+	{
+		for(int j = 0; j < 5; j++)
+		{
+			gameboard.grid[i][j] = 0;
+		}
+	}
+
+	// Print the board
+	printf("BATTLE SHIP BOARD\n");
+	for(int i = 0; i < 5; i++)
+	{
+		for(int j = 0; j < 5; j++)
+		{
+			printf(" %d ", gameboard.grid[i][j]);
+		}
+		printf("\n");
+	}
 
     for ( ; ; ) {
         clilen = sizeof(cliaddr);
