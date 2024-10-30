@@ -1,6 +1,26 @@
-# Client-Server Game
+# Battleship Game - Client-Server
 
-This project is managed using Git and GitHub. Below are the steps to clone the repository, make changes, and push updates to the repository.
+This is a Battleship-style game managed using Git and GitHub. Follow the steps below to clone the repository, make changes, and push updates.
+
+## Project Goals
+
+### Part 1
+- **Generate, Send, and Update Board**: Ensure the game board is generated, sent to clients, and updated correctly.
+- **Handle Player Moves**: Capture player moves and update the board to reflect hits and misses.
+- **End Game Condition**: End the game when all of an enemy’s ships are destroyed.
+
+### Part 2
+- **Implement Combat Mechanics**: Set up the core combat system for engaging with enemy ships.
+- **Create Unique Ship Types**: Develop differently shaped ships without overlap, each with unique behaviors. Consider representing ships as objects and explore ways to store them with shapes intact.
+- **Support Multiple Enemy Ships**: Allow the server to manage multiple enemy ships, choosing a random ship to attack and enabling multiple ships per game.
+
+### Part 3
+- **Scale Map with Difficulty**: Adjust map size and complexity based on selected difficulty level.
+- **Restrict Enemy Types by Difficulty**: Limit certain enemy ship types to higher difficulties.
+- **Introduce Enemy Waves**: Add waves of enemy ships to increase difficulty over time.
+- **Implement PvP Mode**: Add an option for player-vs-player mode alongside player-vs-environment.
+
+---
 
 ## Getting Started
 
