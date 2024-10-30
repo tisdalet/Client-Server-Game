@@ -9,7 +9,7 @@ int main(int argc,char **argv) {
 	typedef struct sockaddr SA;
 	int sockfd;
 	struct sockaddr_in servaddr;
-	FILE *fp;
+	FILE *fp = sdin;
 	typedef struct sockaddr SA;
 	char sendline[4096],recvline[4096];
 
