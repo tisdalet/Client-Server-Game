@@ -87,7 +87,7 @@ int main(int argc,char **argv) {
 			// make ship values
 			ship1.row = rand() % 5;
 			ship1.col = rand() % 3;
-			ship1.hitcounter =0;
+			ship1.hitcounter = 0;
 
 			// This is for testing
 			printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row, ship1.col, ship1.hitcounter);
@@ -95,6 +95,7 @@ int main(int argc,char **argv) {
             close(listenfd); /* close listening socket */
             while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0) {
 				printf("Guess position: row = %d, col = %d", clientguess.row, clientguess.col);
+				strcpy(result, "Miss!\n");
 				if (clientguess.row == ship1.row) { // check if in the same row
 					for(int i = 0; i < 3; i++){
 						if (clientguess.col == ship1.col + i) {
@@ -103,7 +104,6 @@ int main(int argc,char **argv) {
 							break;
 						}
 					}
-					strcpy(result, "Miss!\n");
 				}
 				else {
 					strcpy(result, "Miss!\n");
@@ -114,6 +114,7 @@ int main(int argc,char **argv) {
 				// If ship has been hit 3 times
 				if (ship1.hitcounter == 3) {
 					write(connfd, sunkmessage, strlen(sunkmessage));
+					ship1.hitcounter = 0;
 				}
             }
             close(connfd);

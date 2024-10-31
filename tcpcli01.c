@@ -64,8 +64,8 @@ int main(int argc,char **argv) {
 
 		scanf("%d %d", &row, &col);
 		Guess guess;
-		guess.row = row;
-		guess.col = col;
+		guess.row = row - 1;
+		guess.col = col - 1;
 
 		write(sockfd, &guess, sizeof(guess));;
 		// Read for hit or miss.
