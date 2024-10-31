@@ -8,12 +8,12 @@
 
 #define BOARD_SIZE 5
 
-struct guesses
+typedef struct
 {
 	int row;
 	int col;
-	int hit;
-};
+} Guess;
+
 typedef struct {
     char grid[BOARD_SIZE][BOARD_SIZE];
 } Board;
@@ -41,17 +41,6 @@ int main(int argc,char **argv) {
 		}
 	}
 
-	// Print the board
-	printf("BATTLE SHIP BOARD\n");
-	for(int i = 0; i < 5; i++)
-	{
-		for(int j = 0; j < 5; j++)
-		{
-			printf(" %d ", gameboard.grid[i][j]);
-		}
-		printf("\n");
-	}
-
 	sockfd = socket(2,SOCK_STREAM,0);
 	bzero(&servaddr,sizeof(servaddr));
 	servaddr.sin_family = 2;
@@ -59,14 +48,38 @@ int main(int argc,char **argv) {
 	inet_pton(2,argv[1],&servaddr.sin_addr);
 	connect(sockfd,(SA *)&servaddr,sizeof(servaddr));
 
-	// str_cli(stdin,sockfd); //might not use this anymore
-	while (fgets(sendline,4096,fp) != NULL) {
-		write(sockfd,sendline,strlen(sendline));
+	int ammocount = 0;
+	while (ammocount < 11) {
+		printf("BATTLE SHIP BOARD\n");
+		for(int i = 0; i < 5; i++)
+		{
+			for(int j = 0; j < 5; j++)
+			{
+				printf(" %d ", gameboard.grid[i][j]);
+			}
+			printf("\n");
+		}
+		printf("Enter your guess (row and col): ");
+		int row, col;
+
+		scanf("%d %d", &row, &col);
+		Guess guess;
+		guess.row = row;
+		guess.col = col;
+
+		write(sockfd, &guess, sizeof(guess));;
+		// Read for hit or miss.
 		if (read(sockfd,recvline,4096) == 0) {
 			printf("str_cli: server terminated prematurely");
 			exit(1);
 		}
+		if (strcmp(recvline, "Hit!\n") == 0) {
+			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
+		} else {
+			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
+		}
 		fputs(recvline,stdout);
+		ammocount++;
 	}
 	exit(0);
 }

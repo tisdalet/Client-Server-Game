@@ -11,15 +11,23 @@
 #define BOARD_SIZE 5
 #define LISTENQ 1024
 
-struct guesses
+typedef struct
 {
 	int row;
 	int col;
-	int hit;
-};
+} Guess;
+
 typedef struct {
     char grid[BOARD_SIZE][BOARD_SIZE];
 } Board;
+
+typedef struct
+{
+	int row;
+	int col;
+	int hitcounter;
+} horizontalship;
+
 
 int main(int argc,char **argv) {
     int listenfd,connfd;
@@ -68,22 +76,44 @@ int main(int argc,char **argv) {
 		
         // Fork child process
         if ((childpid = fork()) == 0) {        /* child process */
-            char buf[MAXLINE]; // message from client
-            char buf2[MAXLINE]; // for reponse
+            Guess clientguess; // message from client
+            char result[MAXLINE]; // for response
+			char sunkmessage[MAXLINE];
             ssize_t n;
+			horizontalship ship1;
+
+			strcpy(sunkmessage, "Ship sunk!\n");
+
+			// make ship values
+			ship1.row = rand() % 5;
+			ship1.col = rand() % 3;
+			ship1.hitcounter =0;
+
+			// This is for testing
+			printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row, ship1.col, ship1.hitcounter);
+
             close(listenfd); /* close listening socket */
-            while ((n = read(connfd,buf,MAXLINE)) > 0) {
-                //n = read(connfd, buf, MAXLINE);
-                if (n > 0) {
-                    // remove end char
-                    buf[n] = '\0';
-                    // print
-                    fputs(buf,stdout);
-                }
-                // take in front keyboard, stdin 
-                fgets(buf2,MAXLINE,stdin);
-                // write to socket to client
-                write(connfd,buf2,strlen(buf2));
+            while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0) {
+				printf("Guess position: row = %d, col = %d, hitcounter = %d\n", clientguess.row, clientguess.col);
+				if (clientguess.row == ship1.row) { // check if in the same row
+					for(int i = ship1.col; i < ship1.col + 2; i++){
+						if (clientguess.col == ship1.col) {
+							strcpy(result, "Hit!\n");
+							ship1.hitcounter++;
+							break;
+						}
+					}
+					strcpy(result, "Miss!\n");
+				}
+				else {
+					strcpy(result, "Miss!\n");
+				}
+				if (ship1.hitcounter == 3) {
+					write(connfd, sunkmessage, strlen(sunkmessage));
+				}
+
+                // write to client socket
+                write(connfd,result,strlen(result));
             }
             close(connfd);
             exit(0);
