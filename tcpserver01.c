@@ -94,7 +94,7 @@ int main(int argc,char **argv) {
 
             close(listenfd); /* close listening socket */
             while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0) {
-				printf("Guess position: row = %d, col = %d, hitcounter = %d\n", clientguess.row, clientguess.col);
+				printf("Guess position: row = %d, col = %d", clientguess.row, clientguess.col);
 				if (clientguess.row == ship1.row) { // check if in the same row
 					for(int i = ship1.col; i < ship1.col + 2; i++){
 						if (clientguess.col == ship1.col) {
