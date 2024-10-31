@@ -73,7 +73,7 @@ int main(int argc,char **argv) {
 
         // Accept connection
         connfd = accept(listenfd,(SA *)&cliaddr,&clilen);
-		
+
         // Fork child process
         if ((childpid = fork()) == 0) {        /* child process */
             Guess clientguess; // message from client
@@ -85,16 +85,16 @@ int main(int argc,char **argv) {
 			strcpy(sunkmessage, "Ship sunk!\n");
 
 			// make ship values
-			ship1.row = rand() % 5;
-			ship1.col = rand() % 3;
+			ship1.row = rand() % 5; // random row index value between 0 and 4
+			ship1.col = rand() % 3; // random column index value between 0 and 2 (temporary constraint for testing?)
 			ship1.hitcounter = 0;
 
 			// This is for testing
 			printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row, ship1.col, ship1.hitcounter);
 
-            close(listenfd); /* close listening socket */
+			close(listenfd); /* close listening socket */
             while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0) {
-				printf("Guess position: row = %d, col = %d", clientguess.row, clientguess.col);
+				printf("Guess position: row = %d, col = %d\n", clientguess.row, clientguess.col);
 				strcpy(result, "Miss!\n");
 				if (clientguess.row == ship1.row) { // check if in the same row
 					for(int i = 0; i < 3; i++){

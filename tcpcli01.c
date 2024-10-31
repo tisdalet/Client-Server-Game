@@ -70,7 +70,7 @@ int main(int argc,char **argv) {
 		write(sockfd, &guess, sizeof(guess));;
 		// Read for hit or miss.
 		if (read(sockfd,recvline,4096) == 0) {
-			printf("str_cli: server terminated prematurely");
+			printf("str_cli: server terminated prematurely\n");
 			exit(1);
 		}
 		if (strcmp(recvline, "Hit!\n") == 0) {
