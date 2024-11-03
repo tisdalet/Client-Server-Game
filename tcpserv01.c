@@ -83,18 +83,19 @@ int main(int argc,char **argv)
 			bool ships_placed = false;
 			while(!ships_placed)
 			{
-				for(int i = 0; i < 1; i++)
+				for(int i = 0; i < 3; i++)
 				{
-				//	printf("HELLOOOOOOOOOOOOO");
 					ships[i].row = rand() % 5; // random row index value between 0 and 4
 					ships[i].col = rand() % 3; // random column index value between 0 and 2 (temporary constraint for testing?)
 					ships[i].hitcounter = 0;
 					gameboard.grid[ships[i].row][ships[i].col] = 1;
-					ships_placed = true;
+					if (i == 2){
+						ships_placed = true;
+					}
+					// ships_placed = true;
 				}
 			}
-			// This is for testing
-			//	printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
+
 			// Print the board
 			printf("BATTLE SHIP BOARD\n");
 			for(int i = 0; i < 5; i++)
@@ -106,6 +107,11 @@ int main(int argc,char **argv)
 				printf("\n");
 			}
 
+			//	printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
+			// print ship positions, for testing.
+			for (int i = 0; i < 3; i++) {
+				printf("Ship%d position: row = %d, col = %d, hitcounter = %d\n", i, ships[i].row + 1, ships[i].col + 1, ships[i].hitcounter);
+			}
 
 
 			close(listenfd); /* close listening socket */
@@ -115,7 +121,6 @@ int main(int argc,char **argv)
 				strcpy(result, "Miss!\n");
 				if (gameboard.grid[clientguess.row][clientguess.col] == 1) // check if the client's guess equals a 1 on the gameboard
 				{
-				//	printf("ALERT: We've been hit!\n");
 					strcpy(result, "Hit!\n");
 					//	ship1.hitcounter++;
 				//	break;

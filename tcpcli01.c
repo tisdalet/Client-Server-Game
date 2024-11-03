@@ -5,6 +5,7 @@
 #include <unistd.h> // for read, write
 #include <arpa/inet.h> // for sockets
 #include <time.h> // time() used to provide a seed for srand() to seed rand()
+#include <ctype.h> // for tolower()
 
 #define BOARD_SIZE 5
 
@@ -51,8 +52,10 @@ int main(int argc,char **argv) {
 	int ammocount = 0;
 	while (ammocount < 11) {
 		printf("BATTLE SHIP BOARD\n");
-		for(int i = 0; i < 5; i++)
-		{
+		printf("    A  B  C  D  E\n");
+		printf("    -  -  -  -  -\n");
+		for(int i = 0; i < 5; i++) {
+			printf("%d |", i + 1);
 			for(int j = 0; j < 5; j++)
 			{
 				printf(" %d ", gameboard.grid[i][j]);
@@ -61,11 +64,36 @@ int main(int argc,char **argv) {
 		}
 		printf("Enter your guess (row and col): ");
 		int row, col;
+		char colchar;
+		scanf("%d %c", &row, &colchar);
 
-		scanf("%d %d", &row, &col);
+		// Switch to handle the char
+		colchar = tolower(colchar);
+		// printf("GUESS CHAR %c", colchar);
+		switch (colchar) {
+			case 'a':
+				col = 0;
+				break;
+			case 'b':
+				col = 1;
+				break;
+			case 'c':
+				col = 2;
+				break;
+			case 'd':
+				col = 3;
+				break;
+			case 'e':
+				col = 4;
+				break;
+			default:
+				printf("Other character entered. Bad.\n");
+				break;
+    	}
+		// printf("Row is %d", col);
 		Guess guess;
 		guess.row = row - 1;
-		guess.col = col - 1;
+		guess.col = col;
 
 		write(sockfd, &guess, sizeof(guess));;
 		// Read for hit or miss.
@@ -74,7 +102,6 @@ int main(int argc,char **argv) {
 			exit(1);
 		}
 		if (strcmp(recvline, "Hit!\n") == 0) {
-//			gameboard.grid[guess.row][guess.col] = 2;
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
 			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
