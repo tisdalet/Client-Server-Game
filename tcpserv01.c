@@ -92,9 +92,6 @@ int main(int argc,char **argv) {
 				printf("\n");
 			}
 
-
-
-
 			close(listenfd); /* close listening socket */
 			while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0) {
 				printf("Guess position: row = %d, col = %d\n", clientguess.row + 1, clientguess.col + 1);
