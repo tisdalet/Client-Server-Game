@@ -74,6 +74,7 @@ int main(int argc,char **argv) {
 			exit(1);
 		}
 		if (strcmp(recvline, "Hit!\n") == 0) {
+//			gameboard.grid[guess.row][guess.col] = 2;
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
 			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
