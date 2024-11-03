@@ -73,8 +73,9 @@ int main(int argc,char **argv) {
 			printf("str_cli: server terminated prematurely\n");
 			exit(1);
 		}
-		if (strcmp(recvline, "Hit!\n") == 0) {
+		if (strstr(recvline, "Hit!") != NULL) {
 //			gameboard.grid[guess.row][guess.col] = 2;
+			printf("lol\n");
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
 			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
