@@ -73,14 +73,16 @@ int main(int argc,char **argv) {
 			printf("str_cli: server terminated prematurely\n");
 			exit(1);
 		}
-		if (strstr(recvline, "Hit!") != NULL) {
+		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col - 1] == 2) // second condition will catch reattempts where we previously hit a ship and updated a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2
+		{
 //			gameboard.grid[guess.row][guess.col] = 2;
-			printf("lol\n");
+	//		printf("lol\n");
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
 			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
 		}
 		fputs(recvline,stdout);
+		memset(recvline, 0, sizeof(recvline));
 		ammocount++;
 	}
 	exit(0);
