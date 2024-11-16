@@ -6,7 +6,7 @@
 #include <unistd.h> // for read, write
 #include <arpa/inet.h> // for sockets
 #include <time.h> // time() used to provide a seed for srand() to seed rand()
-#include <stdbool.h> // ships_placed boolean variable
+#include <stdbool.h> // 'ships_placed' variable, 'sunk' data member of Horizontalship struct
 
 #define MAXLINE 4096
 #define BOARD_SIZE 5
@@ -28,6 +28,7 @@ typedef struct
 	int row[2];
 	int col[2];
 	int hitcounter;
+	bool sunk;
 } Horizontalship;
 
 
@@ -52,9 +53,9 @@ int main(int argc,char **argv)
 	listen(listenfd,LISTENQ);
 	printf("Server is ready to talk...\n");
 	// Initialize the gameboard to 0s
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < BOARD_SIZE; i++)
 	{
-		for(int j = 0; j < 5; j++)
+		for(int j = 0; j < BOARD_SIZE; j++)
 		{
 			gameboard.grid[i][j] = 0;
 		}
@@ -73,13 +74,15 @@ int main(int argc,char **argv)
             		Guess clientguess; // message from client
             		char result[MAXLINE]; // for response
 			char sunkmessage[MAXLINE];
+			bool all_ships_sunk;
 			ssize_t n;
-			Horizontalship ships[3]; // create 3 ship struct objects and store in array
+			int total_ships = 3;
+			Horizontalship ships[total_ships]; // create 3 ship struct objects and store in array
 
 			strcpy(sunkmessage, "Ship sunk!\n"); // load the sunk string to sunkmessage variable
 
 			// make ship values
-			for(int i = 0; i < 3; i++) // itereate through 3 ships to generate their positions
+			for(int i = 0; i < total_ships; i++) // itereate through 3 ships to generate their positions
 			{
 				bool ship_placed = false; // each ship's placement is false until all its points are placed
 				while(!ship_placed) // while loop until a ship's placement is complete
@@ -139,9 +142,9 @@ int main(int argc,char **argv)
 			//printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
 			// Print the board
 			printf("BATTLE SHIP BOARD\n");
-			for(int i = 0; i < 5; i++)
+			for(int i = 0; i < BOARD_SIZE; i++)
 			{
-				for(int j = 0; j < 5; j++)
+				for(int j = 0; j < BOARD_SIZE; j++)
 				{
 					printf(" %d ", gameboard.grid[i][j]);
 				}
@@ -151,12 +154,12 @@ int main(int argc,char **argv)
 
 
 			close(listenfd); /* close listening socket */
-			while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0)
+			while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0 && !all_ships_sunk)
 			{
 				printf("Guess position: row = %d, col = %d\n", clientguess.row + 1, clientguess.col + 1); // display client's guess
 				strcpy(result, "Miss!\n"); // assume a miss until otherwise
 
-				for(int i = 0; i < 3; i++) // iterate over each ship to check for hits
+				for(int i = 0; i < total_ships; i++) // iterate over each ship to check for hits
 				{
 					for(int j = 0; j < 2; j++) // itereate over each coordinate of the ship
 					{
@@ -167,10 +170,12 @@ int main(int argc,char **argv)
 							strcpy(result, "Hit!\n"); // store Hit!\n in the result variable to be sent over socket
 							//write(connfd, result, strlen(result));
 							gameboard.grid[clientguess.row][clientguess.col] = 9; // mark cell as hit (randomly chose 9 at this moment)
+
 							ships[i].hitcounter++; // increment the ship struct's hitcounter
 							if(ships[i].hitcounter == 2) // if that hitcounter is 2, ship sunk!
 							{
-								write(connfd, "Ship sunk!\n", strlen(sunkmessage)); // write the ship sunk message to connected socket (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
+								ships[i].sunk = true; // update struct of sunk ship
+								write(connfd, sunkmessage, strlen(sunkmessage)); // write the ship sunk message to connected socket (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
 							}
 							break; // break out of loop when matching coordinates found
 						}
@@ -179,14 +184,37 @@ int main(int argc,char **argv)
 				write(connfd, result, strlen(result));
 				// Print the board
 				printf("BATTLE SHIP BOARD\n");
-				for(int i = 0; i < 5; i++)
+				for(int i = 0; i < BOARD_SIZE; i++)
 				{
-					for(int j = 0; j < 5; j++)
+					for(int j = 0; j < BOARD_SIZE; j++)
 					{
 						printf(" %d ", gameboard.grid[i][j]);
 					}
 					printf("\n");
 				}
+
+
+				for(int i = 0; i < total_ships; i++) // loop that checks if all ships are sunk (victory condition)
+				{
+					if(!ships[i].sunk) break;
+					else if(i == (total_ships - 1))
+					{
+
+						printf("THE COMMIES SANK US!\n");
+						all_ships_sunk = true;
+					}
+				}
+
+			} // end main game (while) loop
+			if(all_ships_sunk)
+			{
+				strcpy(result, "Win!\n");
+				write(connfd, result, strlen(result));
+			}
+			else
+			{
+				strcpy(result, "Lose!\n");
+				write(connfd, result, strlen(result));
 			}
 			close(connfd);
             		exit(0);

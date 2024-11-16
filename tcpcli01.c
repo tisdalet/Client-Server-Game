@@ -5,6 +5,7 @@
 #include <unistd.h> // for read, write
 #include <arpa/inet.h> // for sockets
 #include <time.h> // time() used to provide a seed for srand() to seed rand()
+#include <stdbool.h> // gameover variable
 
 #define BOARD_SIZE 5
 
@@ -49,7 +50,8 @@ int main(int argc,char **argv) {
 	connect(sockfd,(SA *)&servaddr,sizeof(servaddr));
 
 	int ammocount = 0;
-	while (ammocount < 11) {
+	bool gameover;
+	while (ammocount < 11 && !gameover) {
 		printf("BATTLE SHIP BOARD\n");
 		for(int i = 0; i < 5; i++)
 		{
@@ -73,10 +75,9 @@ int main(int argc,char **argv) {
 			printf("str_cli: server terminated prematurely\n");
 			exit(1);
 		}
+		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) gameover = true; // receiving "Win!" or "Lose!" from the server will terminate the client game loop
 		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col - 1] == 2) // second condition will catch reattempts where we previously hit a ship and updated a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2
 		{
-//			gameboard.grid[guess.row][guess.col] = 2;
-	//		printf("lol\n");
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
 			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
