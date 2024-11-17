@@ -6,6 +6,7 @@
 #include <arpa/inet.h> // for sockets
 #include <time.h> // time() used to provide a seed for srand() to seed rand()
 #include <stdbool.h> // gameover variable
+#include <ctype.h> // for tolower()
 
 #define BOARD_SIZE 5
 
@@ -34,9 +35,9 @@ int main(int argc,char **argv) {
 	}
 
 	// Initialize the gameboard to 0s
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < BOARD_SIZE; i++)
 	{
-		for(int j = 0; j < 5; j++)
+		for(int j = 0; j < BOARD_SIZE; j++)
 		{
 			gameboard.grid[i][j] = 0;
 		}
@@ -53,9 +54,11 @@ int main(int argc,char **argv) {
 	bool gameover;
 	while (ammocount < 11 && !gameover) {
 		printf("BATTLE SHIP BOARD\n");
-		for(int i = 0; i < 5; i++)
-		{
-			for(int j = 0; j < 5; j++)
+		printf("    A  B  C  D  E\n");
+		printf("    -  -  -  -  -\n");
+		for(int i = 0; i < BOARD_SIZE; i++) {
+			printf("%d |", i + 1);
+			for(int j = 0; j < BOARD_SIZE; j++)
 			{
 				printf(" %d ", gameboard.grid[i][j]);
 			}
@@ -63,11 +66,36 @@ int main(int argc,char **argv) {
 		}
 		printf("Enter your guess (row and col): ");
 		int row, col;
+		char colchar;
 
-		scanf("%d %d", &row, &col);
+		scanf("%d %c", &row, &colchar);
+		// Switch to handle the char
+		colchar = tolower(colchar);
+		// printf("GUESS CHAR %c", colchar);
+		switch (colchar) {
+			case 'a':
+				col = 0;
+				break;
+			case 'b':
+				col = 1;
+				break;
+			case 'c':
+				col = 2;
+				break;
+			case 'd':
+				col = 3;
+				break;
+			case 'e':
+				col = 4;
+				break;
+			default:
+				printf("Other character entered. Bad.\n");
+				break;
+    	}
+		// printf("Row is %d", col);
 		Guess guess;
 		guess.row = row - 1;
-		guess.col = col - 1;
+		guess.col = col;
 
 		write(sockfd, &guess, sizeof(guess));;
 		// Read for hit or miss.
@@ -79,11 +107,11 @@ int main(int argc,char **argv) {
 		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) gameover = true;
 		/* second condition will catch reattempts where we previously hit a ship and updated 
 		a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2*/
-		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col - 1] == 2)
+		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col] == 2)
 		{
-			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
+			gameboard.grid[row - 1][col] = 2; // 2 = hit
 		} else {
-			gameboard.grid[row - 1][col - 1] = 1; // 1 = miss
+			gameboard.grid[row - 1][col] = 1; // 1 = miss
 		}
 		fputs(recvline,stdout);
 		memset(recvline, 0, sizeof(recvline));

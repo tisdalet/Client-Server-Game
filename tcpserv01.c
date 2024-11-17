@@ -90,7 +90,6 @@ int main(int argc,char **argv)
 				bool ship_placed = false; // each ship's placement is false until all its points are placed
 				while(!ship_placed) // while loop until a ship's placement is complete
 				{
-
 					ships[i].row[0] = rand() % BOARD_SIZE; // random row index value between 0 and 4 stored in the first coordinate position of a ship
 					ships[i].col[0] = rand() % BOARD_SIZE; // random column index value between 0 and 4 stored in the first coordinate position of a ship
 					ships[i].hitcounter = 0; // start each ship struct's hitcounter at 0
