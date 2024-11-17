@@ -76,10 +76,13 @@ int main(int argc,char **argv)
 			char sunkmessage[MAXLINE];
 			bool all_ships_sunk;
 			ssize_t n;
-			int total_ships = 3;
-			Horizontalship ships[total_ships]; // create 3 ship struct objects and store in array
 
-			strcpy(sunkmessage, "Ship sunk!\n"); // load the sunk string to sunkmessage variable
+			// create 3 ship struct objects and store in array
+			int total_ships = 3;
+			Horizontalship ships[total_ships];
+
+			// load the sunk string to sunkmessage variable
+			strcpy(sunkmessage, "Ship sunk!\n");
 
 			// make ship values
 			for(int i = 0; i < total_ships; i++) // itereate through 3 ships to generate their positions
@@ -151,8 +154,6 @@ int main(int argc,char **argv)
 				printf("\n");
 			}
 
-
-
 			close(listenfd); /* close listening socket */
 			while ((n = read(connfd, &clientguess,sizeof(clientguess))) > 0 && !all_ships_sunk)
 			{
@@ -175,7 +176,9 @@ int main(int argc,char **argv)
 							if(ships[i].hitcounter == 2) // if that hitcounter is 2, ship sunk!
 							{
 								ships[i].sunk = true; // update struct of sunk ship
-								write(connfd, sunkmessage, strlen(sunkmessage)); // write the ship sunk message to connected socket (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
+								// write the ship sunk message to connected socket
+								// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
+								write(connfd, sunkmessage, strlen(sunkmessage)); 
 							}
 							break; // break out of loop when matching coordinates found
 						}
@@ -219,7 +222,7 @@ int main(int argc,char **argv)
 			close(connfd);
             		exit(0);
 		}
-        	close(connfd);  /* parent closes connected socket */
+        close(connfd);  /* parent closes connected socket */
 		wait(NULL);
 	}
 }

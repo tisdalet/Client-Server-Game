@@ -75,8 +75,11 @@ int main(int argc,char **argv) {
 			printf("str_cli: server terminated prematurely\n");
 			exit(1);
 		}
-		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) gameover = true; // receiving "Win!" or "Lose!" from the server will terminate the client game loop
-		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col - 1] == 2) // second condition will catch reattempts where we previously hit a ship and updated a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2
+		// receiving "Win!" or "Lose!" from the server will terminate the client game loop
+		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) gameover = true;
+		/* second condition will catch reattempts where we previously hit a ship and updated 
+		a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2*/
+		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col - 1] == 2)
 		{
 			gameboard.grid[row - 1][col -1] = 2; // 2 = hit
 		} else {
