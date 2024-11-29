@@ -140,6 +140,7 @@ int main(int argc,char **argv)
 
 				}
 			}
+			write(connfd, result, strlen(result));
 			// This is for testing
 			//printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
 			// Print the board
@@ -179,6 +180,13 @@ int main(int argc,char **argv)
 								// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
 								write(connfd, sunkmessage, strlen(sunkmessage)); 
 							}
+							if (!ships[i].sunk) {
+								break;
+							}
+							else if (i == (total_ships - 1)){
+								strcpy(result, "Win!\n");
+							}
+
 							break; // break out of loop when matching coordinates found
 						}
 					}
@@ -208,18 +216,6 @@ int main(int argc,char **argv)
 				}
 
 			} // end main game (while) loop
-			if(all_ships_sunk)
-			{
-				strcpy(result, "Win!\n");
-				write(connfd, result, strlen(result));
-			}
-			else
-			{
-				strcpy(result, "Lose!\n");
-				write(connfd, result, strlen(result));
-			}
-			close(connfd);
-            		exit(0);
 		}
         close(connfd);  /* parent closes connected socket */
 		wait(NULL);
