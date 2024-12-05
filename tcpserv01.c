@@ -31,6 +31,64 @@ typedef struct
 	bool sunk;
 } Horizontalship;
 
+void place_ships(Board *board, int amount_of_ships, Horizontalship *ships)
+{
+	for(int i = 0; i < amount_of_ships; i++)
+	{
+		bool ship_placed = false; // each ship's placement is false until all its points are placed
+		while(!ship_placed) // while loop until a ship's placement is complete
+		{
+			ships[i].row[0] = rand() % BOARD_SIZE; // random row index value between 0 and 4 stored in the first coordinate position of a ship
+			ships[i].col[0] = rand() % BOARD_SIZE; // random column index value between 0 and 4 stored in the first coordinate position of a ship
+			ships[i].hitcounter = 0; // start each ship struct's hitcounter at 0
+			int row = ships[i].row[0]; // store the randomly generated value in a row variable for convenience
+			int col = ships[i].col[0]; // store the randomly generated value in a col variable for convenience
+			if(board->grid[row][col] != 1) // if the starting coordinate isn't already a 1 on the gameboard, continue. Otherwise, the while loop will restart
+			{
+				if(row + 1 < BOARD_SIZE && board->grid[row + 1][col] != 1) // if the next row doesn't exceed the gameboard size, and the cell of the next row isn't already a 1 on the gameboard, continue
+				{
+					ships[i].row[0] = row; // store the row of the ship's origin to its struct
+					ships[i].col[0] = col; // store the col of the ship's origin to its struct
+					ships[i].row[1] = row + 1; // store the row of the 2nd coordinate of the ship to its struct
+					ships[i].col[1] = col; // store the row of the 2nd coordinate of the ship to its struct
+					board->grid[row][col] = board->grid[row + 1][col] = 1; // assign both sets of coordinates with a 1 on the gameboard
+					ship_placed = true; // ship was successfully placed, so we'll break the while loop and iterate to the next ship to be placed
+				}
+
+				else if(col + 1 < BOARD_SIZE && board->grid[row][col + 1] != 1) // SEE ABOVE
+				{
+					ships[i].row[0] = row; // SEE ABOVE
+					ships[i].col[0] = col; // SEE ABOVE
+					ships[i].row[1] = row; // SEE ABOVE
+					ships[i].col[1] = col + 1; // SEE ABOVE
+					board->grid[row][col] = board->grid[row][col + 1] = 1; // SEE ABOVE
+					ship_placed = true; // SEE ABOVE
+				}
+
+				else if(row - 1 >= 0 && board->grid[row - 1][col] != 1) // SEE ABOVE
+				{
+					ships[i].row[0] = row; // SEE ABOVE
+					ships[i].col[0] = col; // SEE ABOVE
+					ships[i].row[1] = row - 1; // SEE ABOVE
+					ships[i].col[1] = col; // SEE ABOVE
+					board->grid[row][col] = board->grid[row - 1][col] = 1; // SEE ABOVE
+					ship_placed = true; // SEE ABOVE
+				}
+
+				else if(col - 1 >= 0 && board->grid[row][col - 1] != 1) // SEE ABOVE
+				{
+					ships[i].row[0] = row; // SEE ABOVE
+					ships[i].col[0] = col; // SEE ABOVE
+					ships[i].row[1] = row; // SEE ABOVE
+					ships[i].col[1] = col - 1; // SEE ABOVE
+					board->grid[row][col] = board->grid[row][col - 1] = 1; // SEE ABOVE
+					ship_placed = true; // SEE ABOVE
+				}
+			}
+
+		}
+	}
+}
 
 int main(int argc,char **argv)
 {
@@ -85,61 +143,8 @@ int main(int argc,char **argv)
 			strcpy(sunkmessage, "Ship sunk!\n");
 
 			// make ship values
-			for(int i = 0; i < total_ships; i++) // itereate through 3 ships to generate their positions
-			{
-				bool ship_placed = false; // each ship's placement is false until all its points are placed
-				while(!ship_placed) // while loop until a ship's placement is complete
-				{
-					ships[i].row[0] = rand() % BOARD_SIZE; // random row index value between 0 and 4 stored in the first coordinate position of a ship
-					ships[i].col[0] = rand() % BOARD_SIZE; // random column index value between 0 and 4 stored in the first coordinate position of a ship
-					ships[i].hitcounter = 0; // start each ship struct's hitcounter at 0
-					int row = ships[i].row[0]; // store the randomly generated value in a row variable for convenience
-					int col = ships[i].col[0]; // store the randomly generated value in a col variable for convenience
-					if(gameboard.grid[row][col] != 1) // if the starting coordinate isn't already a 1 on the gameboard, continue. Otherwise, the while loop will restart
-					{
-						if(row + 1 < BOARD_SIZE && gameboard.grid[row + 1][col] != 1) // if the next row doesn't exceed the gameboard size, and the cell of the next row isn't already a 1 on the gameboard, continue
-						{
-							ships[i].row[0] = row; // store the row of the ship's origin to its struct
-							ships[i].col[0] = col; // store the col of the ship's origin to its struct
-							ships[i].row[1] = row + 1; // store the row of the 2nd coordinate of the ship to its struct
-							ships[i].col[1] = col; // store the row of the 2nd coordinate of the ship to its struct
-							gameboard.grid[row][col] = gameboard.grid[row + 1][col] = 1; // assign both sets of coordinates with a 1 on the gameboard
-							ship_placed = true; // ship was successfully placed, so we'll break the while loop and iterate to the next ship to be placed
-						}
-
-						else if(col + 1 < BOARD_SIZE && gameboard.grid[row][col + 1] != 1) // SEE ABOVE
-						{
-							ships[i].row[0] = row; // SEE ABOVE
-							ships[i].col[0] = col; // SEE ABOVE
-							ships[i].row[1] = row; // SEE ABOVE
-							ships[i].col[1] = col + 1; // SEE ABOVE
-							gameboard.grid[row][col] = gameboard.grid[row][col + 1] = 1; // SEE ABOVE
-							ship_placed = true; // SEE ABOVE
-						}
-
-						else if(row - 1 >= 0 && gameboard.grid[row - 1][col] != 1) // SEE ABOVE
-						{
-							ships[i].row[0] = row; // SEE ABOVE
-							ships[i].col[0] = col; // SEE ABOVE
-							ships[i].row[1] = row - 1; // SEE ABOVE
-							ships[i].col[1] = col; // SEE ABOVE
-							gameboard.grid[row][col] = gameboard.grid[row - 1][col] = 1; // SEE ABOVE
-							ship_placed = true; // SEE ABOVE
-						}
-
-						else if(col - 1 >= 0 && gameboard.grid[row][col - 1] != 1) // SEE ABOVE
-						{
-							ships[i].row[0] = row; // SEE ABOVE
-							ships[i].col[0] = col; // SEE ABOVE
-							ships[i].row[1] = row; // SEE ABOVE
-							ships[i].col[1] = col - 1; // SEE ABOVE
-							gameboard.grid[row][col] = gameboard.grid[row][col - 1] = 1; // SEE ABOVE
-							ship_placed = true; // SEE ABOVE
-						}
-					}
-
-				}
-			}
+			place_ships(&gameboard, total_ships, ships);
+			
 			write(connfd, result, strlen(result));
 			// This is for testing
 			//printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
