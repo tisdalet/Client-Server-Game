@@ -180,13 +180,19 @@ int main(int argc,char **argv)
 								// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
 								write(connfd, sunkmessage, strlen(sunkmessage)); 
 							}
-							if (!ships[i].sunk) {
-								break;
-							}
-							else if (i == (total_ships - 1)){
-								strcpy(result, "Win!\n");
-							}
 
+							for(int i = 0; i < total_ships; i++) // loop that checks if all ships are sunk (victory condition)
+							{
+								if(!ships[i].sunk) break;
+								else if(i == (total_ships - 1))
+								{
+
+									printf("THE COMMIES SANK US!\n");
+									all_ships_sunk = true;
+									strcpy(result, "Win!\n");
+								}
+							}
+	
 							break; // break out of loop when matching coordinates found
 						}
 					}
