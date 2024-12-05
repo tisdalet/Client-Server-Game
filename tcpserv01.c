@@ -209,16 +209,9 @@ int main(int argc,char **argv)
 					printf("\n");
 				}
 
-
-				for(int i = 0; i < total_ships; i++) // loop that checks if all ships are sunk (victory condition)
-				{
-					if(!ships[i].sunk) break;
-					else if(i == (total_ships - 1))
-					{
-
-						printf("THE COMMIES SANK US!\n");
-						all_ships_sunk = true;
-					}
+				if (all_ships_sunk == true) {
+					close(connfd);
+            		exit(0);
 				}
 
 			} // end main game (while) loop
