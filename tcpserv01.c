@@ -140,7 +140,7 @@ int main(int argc,char **argv)
 
 				}
 			}
-			write(connfd, result, strlen(result));
+//			write(connfd, result, strlen(result));
 			// This is for testing
 			//printf("Ship position: row = %d, col = %d, hitcounter = %d\n", ship1.row + 1, ship1.col + 1, ship1.hitcounter);
 			// Print the board
@@ -169,7 +169,7 @@ int main(int argc,char **argv)
 
 						//	printf("ALERT: We've been hit!\n");
 							strcpy(result, "Hit!\n"); // store Hit!\n in the result variable to be sent over socket
-							//write(connfd, result, strlen(result));
+						//	write(connfd, result, strlen(result));
 							gameboard.grid[clientguess.row][clientguess.col] = 9; // mark cell as hit (randomly chose 9 at this moment)
 
 							ships[i].hitcounter++; // increment the ship struct's hitcounter
@@ -178,25 +178,34 @@ int main(int argc,char **argv)
 								ships[i].sunk = true; // update struct of sunk ship
 								// write the ship sunk message to connected socket
 								// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
-								write(connfd, sunkmessage, strlen(sunkmessage)); 
+								write(connfd, sunkmessage, strlen(sunkmessage));
 							}
 
-							for(int i = 0; i < total_ships; i++) // loop that checks if all ships are sunk (victory condition)
-							{
-								if(!ships[i].sunk) break;
-								else if(i == (total_ships - 1))
-								{
 
-									printf("THE COMMIES SANK US!\n");
-									all_ships_sunk = true;
-									strcpy(result, "Win!\n");
-								}
-							}
-	
+		//					for(int i = 0; i < total_ships; i++) // loop that checks if all ships are sunk (victory condition)
+		//					{
+		//						if(!ships[i].sunk) break;
+		//						else if(i == (total_ships - 1))
+		//						{
+//
+//									printf("THE COMMIES SANK US!\n");
+//									all_ships_sunk = true;
+//									strcpy(result, "Win!\n");
+//								}
+//							}
+
 							break; // break out of loop when matching coordinates found
 						}
+					} // END j loop
+
+			/*		if(ships[i].hitcounter == 2) // if that hitcounter is 2, ship sunk!
+					{
+						ships[i].sunk = true; // update struct of sunk ship
+						// write the ship sunk message to connected socket
+						// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
+						write(connfd, sunkmessage, strlen(sunkmessage));
 					}
-				}
+			*/	} // END i loop
 				write(connfd, result, strlen(result));
 				// Print the board
 				printf("BATTLE SHIP BOARD\n");
@@ -209,14 +218,31 @@ int main(int argc,char **argv)
 					printf("\n");
 				}
 
-				if (all_ships_sunk == true) {
-					close(connfd);
-            		exit(0);
+				for(int i = 0; i < total_ships; i++)
+				{
+					if(!ships[i].sunk) break;
+					else if(i == (total_ships - 1))
+					{
+						printf("IT'S GODZIIIILLLLLAAAAA!\n");
+						all_ships_sunk = true;
+					}
 				}
-
+				if(all_ships_sunk)
+				{
+					strcpy(result, "Win!\n");
+					write(connfd, result, strlen(result));
+				}
+				else
+				{
+					strcpy(result, "\n");
+					write(connfd, result, strlen(result));
+				}
 			} // end main game (while) loop
+
+			close(connfd);
+        		exit(0);
 		}
-        close(connfd);  /* parent closes connected socket */
+	        close(connfd);  /* parent closes connected socket */
 		wait(NULL);
 	}
 }

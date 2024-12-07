@@ -50,9 +50,12 @@ int main(int argc,char **argv) {
 	inet_pton(2,argv[1],&servaddr.sin_addr);
 	connect(sockfd,(SA *)&servaddr,sizeof(servaddr));
 
-	int ammocount = 0;
+	int sunk = 0, turn = 0; // counters
+	int ammocount = 11;
 	bool gameover;
-	while (ammocount < 11 && !gameover) {
+	while (ammocount > 0 && !gameover) {
+		turn++;
+		printf("\n| AMMO %d | TURN %d |\n\n", ammocount, turn); // display turn and score counters
 		printf("BATTLE SHIP BOARD\n");
 		printf("    A  B  C  D  E\n");
 		printf("    -  -  -  -  -\n");
@@ -91,7 +94,7 @@ int main(int argc,char **argv) {
 			default:
 				printf("Other character entered. Bad.\n");
 				break;
-    	}
+    		}
 		// printf("Row is %d", col);
 		Guess guess;
 		guess.row = row - 1;
@@ -104,8 +107,7 @@ int main(int argc,char **argv) {
 			exit(1);
 		}
 		// receiving "Win!" or "Lose!" from the server will terminate the client game loop
-		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) gameover = true;
-		/* second condition will catch reattempts where we previously hit a ship and updated 
+			/* second condition will catch reattempts where we previously hit a ship and updated 
 		a 2 on the client-side gameboard. It just sets a 2, effectively keeping that location as a 2*/
 		if (strstr(recvline, "Hit!") != NULL || gameboard.grid[row - 1][col] == 2)
 		{
@@ -113,9 +115,21 @@ int main(int argc,char **argv) {
 		} else {
 			gameboard.grid[row - 1][col] = 1; // 1 = miss
 		}
-		fputs(recvline,stdout);
+		if(strstr(recvline, "Ship sunk!") != NULL) // when a ship is sunk
+		{
+			ammocount += 3;
+			printf("+2 AMMO \n");
+		}
+		fputs(recvline, stdout);
 		memset(recvline, 0, sizeof(recvline));
-		ammocount++;
+		read(sockfd, recvline, 4096);
+		if(strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL)
+		{
+			fputs(recvline, stdout);
+			gameover = true;
+		}
+		memset(recvline, 0, sizeof(recvline));
+		ammocount--; // reduce ammo at the end of each turn
 	}
 	exit(0);
 }
