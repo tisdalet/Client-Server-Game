@@ -178,7 +178,8 @@ int main(int argc,char **argv)
 								ships[i].sunk = true; // update struct of sunk ship
 								// write the ship sunk message to connected socket
 								// (probably don't need to specify the content of the sunk message, as we did that near the top of this program)
-								write(connfd, sunkmessage, strlen(sunkmessage));
+						//		write(connfd, sunkmessage, strlen(sunkmessage));
+								strcat(result, sunkmessage);
 							}
 
 

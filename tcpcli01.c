@@ -5,7 +5,7 @@
 #include <arpa/inet.h> // for sockets
 #include <time.h> // time() used to provide a seed for srand() to seed rand()
 #include <stdbool.h> // gameover variable
-#include <ctype.h> // for tolower()
+#include <ctype.h> // for tolower(), toupper()
 #include <sqlite3.h> // for database
 
 #define BOARD_SIZE 5
@@ -32,7 +32,7 @@ int init_db() {
 
     // Create the high_scores table if it doesn't exist
     const char *sql_create_table = "CREATE TABLE IF NOT EXISTS high_scores (id INTEGER PRIMARY KEY, player_name TEXT, score INTEGER);";
-    
+
     // create the table
     char *err_msg = 0;
     rc = sqlite3_exec(db, sql_create_table, 0, 0, &err_msg);
@@ -87,6 +87,17 @@ void insert_highscore(const char *player_name, int score) {
     sqlite3_finalize(stmt); // Finalize the statement
 }
 
+void print_title()
+{
+	printf("\n");
+	printf(" ██████╗  █████╗ ████████╗████████╗██╗     ███████╗    ███████╗██╗  ██╗██╗██████╗\n");
+	printf(" ██╔══██╗██╔══██╗╚══██╔══╝╚══██╔══╝██║     ██╔════╝    ██╔════╝██║  ██║██║██╔══██╗\n");
+	printf(" ██████╔╝███████║   ██║      ██║   ██║     █████╗      ███████╗███████║██║██████╔╝\n");
+	printf(" ██╔══██╗██╔══██║   ██║      ██║   ██║     ██╔══╝      ╚════██║██╔══██║██║██╔═══╝\n");
+	printf(" ██████╔╝██║  ██║   ██║      ██║   ███████╗███████╗    ███████║██║  ██║██║██║\n");
+	printf(" ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚═╝╚═╝\n");
+}
+
 int main(int argc, char **argv) {
     typedef struct sockaddr SA;
     int sockfd;
@@ -109,19 +120,19 @@ int main(int argc, char **argv) {
 
     // Menu for user choice
     int choice;
-    printf("BATTLESHIP!\n");
-    printf("1. Play Game\n");
-    printf("2. View High Scores\n");
-    printf("Enter your choice: ");
-    scanf("%d", &choice);
+    print_title();
+    do {
+    	printf("\n\n");
+    	printf("\t 1. Play Game\n");
+    	printf("\t 2. View High Scores\n\n");
+    	printf("\t Enter your choice: ");
+    	scanf("%d", &choice);
 
-    if (choice == 2) {
-        show_highscores();
-    } 
-
-	// Get initials
-    printf("Enter your initials (3 characters): ");
-    scanf("%3s", initials);
+    	if (choice == 2) {
+        	show_highscores();
+    	}
+    }
+    while(choice != 1);
 
     // Initialize the gameboard to 0s
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -139,8 +150,8 @@ int main(int argc, char **argv) {
 
     int sunk = 0, turn = 0; // counters
     int ammocount = 11;
-    bool gameover;
-    while (ammocount > 0 && !gameover) {
+    bool win;
+    while (ammocount > 0 && !win) {
         turn++;
         printf("\n| AMMO %d | TURN %d |\n\n", ammocount, turn); // display turn and score counters
         printf("BATTLE SHIP BOARD\n");
@@ -199,21 +210,29 @@ int main(int argc, char **argv) {
         }
         if (strstr(recvline, "Ship sunk!") != NULL) {
             ammocount += 3;
-            printf("+2 AMMO \n");
+            printf("+3 AMMO \n");
         }
         fputs(recvline, stdout);
         memset(recvline, 0, sizeof(recvline));
         read(sockfd, recvline, 4096);
         if (strstr(recvline, "Win!") != NULL || strstr(recvline, "Lose!") != NULL) {
             fputs(recvline, stdout);
-            gameover = true;
+            win = true;
+	    // Get initials
+	    printf("\nHIGH SCORE: Enter your initials (3 characters): ");
+            scanf("%3s", initials);
+	    for(int i = 0; i < 3; i++)
+	    {
+		initials[i] = toupper(initials[i]);
+	    }
+
 			// Insert int DB ONLY if win
 			insert_highscore(initials, ammocount);
         }
         memset(recvline, 0, sizeof(recvline));
         ammocount--; // reduce ammo at the end of each turn
-    }
-
+    } // game while loop
+    if(!win) printf("\nL O S E R !\n");
     sqlite3_close(db);
     exit(0);
 }
